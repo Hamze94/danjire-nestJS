@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateCardDto } from './dto/create-card.dto';
-import { Card } from '../schemas/card.schema';
+import { Card } from './entities/card.entity';
 
 @Injectable()
 export class CardsService {

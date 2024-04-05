@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import mongoose from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Product {
@@ -45,7 +46,7 @@ export class Product {
         required: true,
     })
     expireyDate: Date;
-    @Prop({ type: String, ref: 'Category' })
+    @Prop({ type: [{ type: mongoose.Types.ObjectId, ref: 'Category' }], required: true })
     categoryId: string;
 }
 export const ProductSchema = SchemaFactory.createForClass(Product);
