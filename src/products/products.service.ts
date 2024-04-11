@@ -6,7 +6,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import * as cloudinary from 'cloudinary';
 import * as dotenv from 'dotenv';
-import { Product } from 'src/schemas/product.schema';
+import { Product } from './entities/product.entites';
 
 dotenv.config();
 
@@ -19,17 +19,28 @@ cloudinary.v2.config({
 @Injectable()
 export class ProductsService {
     constructor(@InjectModel(Product.name) private readonly productModel: Model<Product>) { }
-    async create(createProductDto: CreateProductDto, image) {
-        console.log(createProductDto)
+    async create(createProductDto: CreateProductDto, image: Buffer) {
         try {
-            const uploadResult = await cloudinary.v2.uploader.upload(image.path, { folder: 'products' });
-            createProductDto.imageUrl = uploadResult.secure_url;
-            const product = new this.productModel(createProductDto);
-            return await product.save();
+            const uploadStream = cloudinary.v2.uploader.upload_stream({ folder: 'products' }, (error, result) => {
+                if (error) {
+                    throw new Error('Failed to upload image to Cloudinary');
+                }
+                const product = new this.productModel({
+                    ...createProductDto,
+                    imageUrl: result.secure_url
+                });
+                const productsaved = product.save();
+                return productsaved
+            });
+
+            uploadStream.end(image);
+
         } catch (error) {
-            throw error;
+            throw new Error('Failed to create product');
         }
+
     }
+
 
     async findAll() {
         try {

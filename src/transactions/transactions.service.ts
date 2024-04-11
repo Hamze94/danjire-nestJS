@@ -2,9 +2,9 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Transaction } from 'src/transactions/entities/transaction.enities';
-import { User } from 'src/schemas/users.schema';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { Card } from 'src/cards/entities/card.entity';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class TransactionsService {

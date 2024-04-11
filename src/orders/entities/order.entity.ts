@@ -5,7 +5,7 @@ import { User } from 'src/users/entities/user.entity';
 @Schema({ timestamps: true })
 export class Order {
     @Prop({ type: [{ type: mongoose.Types.ObjectId, ref: 'User' }], required: true })
-    user: User;
+    userId: User;
     @Prop({ type: [{ type: mongoose.Types.ObjectId, ref: 'Product' }], required: true })
     products: Product[];
     @Prop({ default: Date.now })

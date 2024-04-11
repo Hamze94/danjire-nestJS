@@ -11,16 +11,8 @@ export class ProductsController {
 
   @Post('create')
   @UseInterceptors(FileInterceptor('image'))
-  async createProduct(@Body() productData: CreateProductDto, @UploadedFile() image) {
-    if (!image) {
-      throw new BadRequestException('Missing required parameter - file');
-    }
-
-    try {
-      return await this.productsService.create(productData, image);
-    } catch (error) {
-      throw error;
-    }
+  async createProduct(@Body() productData: CreateProductDto, @UploadedFile() image: Express.Multer.File) {
+    return await this.productsService.create(productData, image.buffer);
   }
 
   @Get('low-stock')
