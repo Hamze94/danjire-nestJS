@@ -13,7 +13,6 @@ export class OrdersService {
 
   ) { }
   async create(orderData: CreateOrderDto): Promise<Order> {
-    console.log(orderData)
     return await this.orderModel.create(orderData);
 
   }
@@ -38,16 +37,15 @@ export class OrdersService {
 
     let totalRevenue = 0;
     for (const order of orders) {
+      console.log(order.products)
       for (const productId of order.products) {
         const product: Product = await this.productModel.findById(productId).exec(); // Fetch product details
         if (product) {
           totalRevenue += product.sellingPrice - product.costPrice;
-          console.log(totalRevenue)
         }
       }
     }
-
-
+    console.log(totalRevenue)
     return totalRevenue;
   }
 }

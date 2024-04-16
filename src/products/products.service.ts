@@ -19,27 +19,31 @@ cloudinary.v2.config({
 @Injectable()
 export class ProductsService {
     constructor(@InjectModel(Product.name) private readonly productModel: Model<Product>) { }
-    async create(createProductDto: CreateProductDto, image: Buffer) {
+    async create(createProductDto: CreateProductDto, image: Buffer): Promise<Product> {
         try {
-            const uploadStream = cloudinary.v2.uploader.upload_stream({ folder: 'products' }, (error, result) => {
-                if (error) {
-                    throw new Error('Failed to upload image to Cloudinary');
-                }
-                const product = new this.productModel({
-                    ...createProductDto,
-                    imageUrl: result.secure_url
-                });
-                const productsaved = product.save();
-                return productsaved
+            const result: any = await new Promise((resolve, reject) => {
+                cloudinary.v2.uploader.upload_stream({ folder: 'products' }, (error: any, result: any) => {
+                    if (error) {
+                        reject(new Error('Failed to upload image to Cloudinary'));
+                    } else {
+                        resolve(result);
+                    }
+                }).end(image);
             });
 
-            uploadStream.end(image);
+            const product = new this.productModel({
+                ...createProductDto,
+                imageUrl: result.secure_url
+            });
 
+            const savedProduct = await product.save();
+            return savedProduct;
         } catch (error) {
             throw new Error('Failed to create product');
         }
-
     }
+
+
 
 
     async findAll() {
@@ -58,13 +62,27 @@ export class ProductsService {
         }
     }
 
-    async update(id: string, updateProductDto: UpdateProductDto) {
+    async update(id: string, updateProductDto: UpdateProductDto, image: Buffer) {
         try {
-            return await this.productModel.findByIdAndUpdate(id, updateProductDto, { new: true }).exec();
+            let productData = { ...updateProductDto };
+
+            if (image) {
+                const uploadResult = await cloudinary.v2.uploader.upload_stream({ folder: 'products' }, (error, result) => {
+                    if (error) {
+                        throw new Error('Failed to upload image to Cloudinary');
+                    }
+                    productData.imageUrl = result.secure_url;
+                });
+
+                uploadResult.end(image);
+            }
+
+            return await this.productModel.findByIdAndUpdate(id, productData, { new: true }).exec();
         } catch (error) {
             throw error;
         }
     }
+
 
     async remove(id: string) {
         try {

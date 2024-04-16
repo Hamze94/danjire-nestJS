@@ -1,17 +1,22 @@
-import { Body, Controller, Delete, Get, Param, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { CardsService } from './cards.service';
 import { CreateCardDto } from './dto/create-card.dto';
+import { AuthGuard } from 'src/auth/guards/JwtAuthGuard ';
+import { Roles } from 'src/auth/decorators/user.decorator';
+@UseGuards(AuthGuard)
 
 @Controller('cards')
+
+
 export class CardsController {
     constructor(private cardService: CardsService) { }
-
+    @Roles('USER')
     @Post('/create')
     async createCard(@Body() cardData: CreateCardDto) {
         return this.cardService.create(cardData);
     }
-
-    @Get()
+    @Roles('USER')
+    @Get('/')
     async getAllCards() {
         return this.cardService.findAll();
     }

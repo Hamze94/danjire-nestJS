@@ -37,10 +37,29 @@ export class TransactionsService {
     return await this.transactionModel.find({});
   }
   async findDeposits() {
-    return await this.transactionModel.find({ type: 'depsit' });
+    return await this.transactionModel.find({ type: 'deposit' });
+  }
+
+  async getTotalDeposits() {
+    const deposits = await this.findDeposits();
+    let total = 0;
+    deposits.forEach(deposit => {
+      total += deposit.amount;
+    });
+    console.log(total)
+    return total;
   }
   async findCredits() {
     return await this.transactionModel.find({ type: 'credit' })
+  }
+  async getTotalCredits() {
+    const credits = await this.findCredits();
+    let total = 0;
+    credits.forEach(credit => {
+      total += credit.amount;
+    });
+    console.log(total)
+    return total;
   }
   async update(id: string, transaction) {
     return await this.transactionModel.findByIdAndUpdate(id, transaction);

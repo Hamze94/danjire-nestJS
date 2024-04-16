@@ -45,9 +45,10 @@ export class ProductsController {
   }
 
   @Put(':id/update')
-  async updateProduct(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
+  @UseInterceptors(FileInterceptor('image'))
+  async updateProduct(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto, @UploadedFile() image: Express.Multer.File) {
     try {
-      return await this.productsService.update(id, updateProductDto);
+      return await this.productsService.update(id, updateProductDto, image?.buffer);
     } catch (error) {
       throw error;
     }

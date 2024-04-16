@@ -14,12 +14,12 @@ export class TransactionsController {
     return this.transactionsService.findAll()
   }
   @Get('deposits')
-  async getDeposits() {
-    return this.transactionsService.findDeposits()
+  async getTotalDeposits() {
+    return this.transactionsService.getTotalDeposits()
   }
   @Get('credits')
-  async getCredits() {
-    return this.transactionsService.findCredits()
+  async getTotalCredits() {
+    return this.transactionsService.getTotalCredits()
   }
 
 }
