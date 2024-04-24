@@ -1,13 +1,13 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { CardsController } from './cards.controller';
 import { CardsService } from './cards.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Card, CardSchema } from './entities/card.entity';
-import { AuthModule } from 'src/auth/auth.module';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
     controllers: [CardsController],
-    providers: [CardsService],
+    providers: [CardsService, JwtService],
     imports: [
         MongooseModule.forFeature([
             {
@@ -15,7 +15,7 @@ import { AuthModule } from 'src/auth/auth.module';
                 schema: CardSchema
             }
         ]),
-        AuthModule
+
     ],
     exports: [CardsService, MongooseModule.forFeature([{ name: Card.name, schema: CardSchema }])], // Export CardsService and MongooseModule
 

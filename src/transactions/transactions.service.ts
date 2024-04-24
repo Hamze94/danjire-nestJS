@@ -12,24 +12,35 @@ export class TransactionsService {
     @InjectModel(Card.name) private readonly cardModel: Model<Card>,
     @InjectModel(User.name) private readonly userModel: Model<User>,
 
+
   ) { }
   async create(transactionData: CreateTransactionDto) {
-    const { cardId, orderId, amount, type } = transactionData;
+    const { cardId, amount, type } = transactionData;
+
     const card = await this.cardModel.findOne({ "_id": cardId });
     if (!card) {
       throw new BadRequestException('Card not found');
     } else {
       const user = await this.userModel.findOne({ "_id": card.userId });
-      if (user.role === 'CUSTOMER') {
-        if (type === 'credit') {
-          card.balance -= amount;
+      if (user.role === 'CUSTOMER' || user.role === 'USER') {
+        if (type === 'CREDIT') {
+
+          card.balance -= parseInt(amount as string)
+            ;
           await card.save();
         }
-        if (type === 'deposit') {
-          card.balance += amount;
+        if (type === 'DEPOSIT') {
+          card.balance += parseInt(amount as string)
+            ;
+          await card.save();
+        }
+        if (type === 'ORDER') {
+          card.balance -= parseInt(amount as string)
+            ;
           await card.save();
         }
       }
+
     }
     return await this.transactionModel.create(transactionData);
   }
@@ -37,7 +48,7 @@ export class TransactionsService {
     return await this.transactionModel.find({});
   }
   async findDeposits() {
-    return await this.transactionModel.find({ type: 'deposit' });
+    return await this.transactionModel.find({ type: 'DEPOSIT' });
   }
 
   async getTotalDeposits() {
@@ -46,19 +57,18 @@ export class TransactionsService {
     deposits.forEach(deposit => {
       total += deposit.amount;
     });
-    console.log(total)
     return total;
   }
   async findCredits() {
-    return await this.transactionModel.find({ type: 'credit' })
+    return await this.transactionModel.find({ type: 'CREDIT' })
   }
   async getTotalCredits() {
     const credits = await this.findCredits();
     let total = 0;
     credits.forEach(credit => {
       total += credit.amount;
+
     });
-    console.log(total)
     return total;
   }
   async update(id: string, transaction) {
@@ -66,5 +76,15 @@ export class TransactionsService {
   }
   async remove(id: string) {
     return this.transactionModel.findByIdAndDelete(id)
+  }
+  async findUserTransactions(userId: string) {
+    const card = await this.cardModel.findOne({ userId });
+    if (!card) {
+      throw new BadRequestException('Card not found for user');
+    }
+    const idString = card._id.toString();
+    const userTranstions = await this.transactionModel.find({ cardId: idString });
+    return userTranstions
+
   }
 }

@@ -9,6 +9,7 @@ import { TransactionsModule } from './transactions/transactions.module';
 import { UsersModule } from './users/users.module';
 import { CategoriesModule } from './categories/categories.module';
 import { OrdersModule } from './orders/orders.module';
+import { AuthModule } from './auth/auth.module';
 dotenv.config();
 
 @Module({
@@ -19,7 +20,8 @@ dotenv.config();
     TransactionsModule,
     UsersModule,
     CategoriesModule,
-    OrdersModule
+    OrdersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

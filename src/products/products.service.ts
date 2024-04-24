@@ -15,33 +15,52 @@ cloudinary.v2.config({
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
-
+interface CloudinaryUploadResult {
+    secure_url: string;
+    // Add other properties if needed
+}
 @Injectable()
 export class ProductsService {
     constructor(@InjectModel(Product.name) private readonly productModel: Model<Product>) { }
     async create(createProductDto: CreateProductDto, image: Buffer): Promise<Product> {
         try {
-            const result: any = await new Promise((resolve, reject) => {
-                cloudinary.v2.uploader.upload_stream({ folder: 'products' }, (error: any, result: any) => {
+            // Create a Promise to wait for the image upload to complete
+            const imageUploadPromise = new Promise((resolve, reject) => {
+                // Create a readable stream from the image Buffer
+                const imageStream = cloudinary.v2.uploader.upload_stream({ folder: 'products' }, async (error: any, result: CloudinaryUploadResult) => {
                     if (error) {
+                        console.error('Failed to upload image to Cloudinary:', error);
                         reject(new Error('Failed to upload image to Cloudinary'));
                     } else {
-                        resolve(result);
+                        // Resolve the Promise with the uploaded image URL
+                        resolve(result.secure_url);
                     }
-                }).end(image);
+                });
+
+                // Write the image data to the upload stream
+                imageStream.end(image);
             });
 
+            // Wait for the image upload Promise to resolve
+            const imageUrl = await imageUploadPromise;
+
+            // Create the product with the uploaded image URL
             const product = new this.productModel({
                 ...createProductDto,
-                imageUrl: result.secure_url
+                imageUrl: imageUrl
             });
 
+            // Save the product to the database
             const savedProduct = await product.save();
+            // Return the saved product with the image URL
             return savedProduct;
         } catch (error) {
+            console.error('Error creating product:', error);
             throw new Error('Failed to create product');
         }
     }
+
+
 
 
 
@@ -61,27 +80,41 @@ export class ProductsService {
             throw error;
         }
     }
-
     async update(id: string, updateProductDto: UpdateProductDto, image: Buffer) {
         try {
-            let productData = { ...updateProductDto };
+            let productData: {
+                name?: string;
+                costPrice?: number;
+                sellingPrice?: number;
+                quantity?: number;
+                description?: string;
+                image?: string;
+                expireyDate?: Date;
+                imageUrl?: string;
+            } = { ...updateProductDto };
 
             if (image) {
-                const uploadResult = await cloudinary.v2.uploader.upload_stream({ folder: 'products' }, (error, result) => {
-                    if (error) {
-                        throw new Error('Failed to upload image to Cloudinary');
-                    }
-                    productData.imageUrl = result.secure_url;
+                // Create a promise to handle the Cloudinary upload
+                const uploadResult: Promise<string> = new Promise((resolve, reject) => {
+                    cloudinary.v2.uploader.upload_stream({ folder: 'products' }, (error, result) => {
+                        if (error) {
+                            reject(new Error('Failed to upload image to Cloudinary'));
+                        } else {
+                            resolve(result.secure_url);
+                        }
+                    }).end(image);
                 });
-
-                uploadResult.end(image);
+                // Wait for the upload to complete and update the imageUrl
+                productData.imageUrl = await uploadResult;
             }
-
+            // Update the product data in the database
             return await this.productModel.findByIdAndUpdate(id, productData, { new: true }).exec();
         } catch (error) {
             throw error;
         }
     }
+
+
 
 
     async remove(id: string) {

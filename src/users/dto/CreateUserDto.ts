@@ -15,14 +15,14 @@ export class CreateUserDto {
     password: string;
 
     @IsString()
-    address?: Number;
+    address: string;
 
     @IsNotEmpty()
     phoneNumber?: number;
 
     @IsString()
-    role?: string;
+    role: string;
 
     @IsString()
-    description?: string;
+    description: string;
 }

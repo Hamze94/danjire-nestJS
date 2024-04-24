@@ -1,7 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { User } from 'src/schemas/user.schema';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -20,7 +19,6 @@ export class AuthGuard implements CanActivate {
                 throw new UnauthorizedException('Invalid user role');
             }
             request.user = payload;
-            console.log(payload)
             // Check if user role is allowed to access the endpoint
             const allowedRoles = this.getRolesFromDecorator(context);
             console.log(allowedRoles)

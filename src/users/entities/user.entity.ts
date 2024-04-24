@@ -27,12 +27,12 @@ export class User {
     })
     description: string;
     @Prop({
-        type: String
+        type: String,
+        required: true
     })
     address: string
     @Prop({
         type: Number,
-        required: true
     })
     phoneNumber: number
 }

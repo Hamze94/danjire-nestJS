@@ -6,8 +6,8 @@ import { User } from 'src/users/entities/user.entity';
 export class Order {
     @Prop({ type: [{ type: mongoose.Types.ObjectId, ref: 'User' }], required: true })
     userId: User;
-    @Prop({ type: [{ type: mongoose.Types.ObjectId, ref: 'Product' }], required: true })
-    products: Product[];
+    @Prop({ required: true, type: [{ productId: String, quantity: Number }] })
+    products: { productId: string; quantity: number }[];
     @Prop({ default: Date.now })
     orderDate: Date;
 

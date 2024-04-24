@@ -1,24 +1,30 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { AuthGuard } from 'src/auth/guards/JwtAuthGuard ';
+import { Roles } from 'src/auth/decorators/user.decorator';
 
 @Controller('categories')
 export class CategoriesController {
   constructor(private categoryService: CategoriesService) { }
 
   @Get('/')
-  async fetchAllCategoreis() {
+  async fetchAllCategories() {
     return this.categoryService.findAll();
   }
+
+
   @Post('create')
   async createCategory(@Body() categoryData: CreateCategoryDto) {
-    return this.categoryService.create(categoryData)
+    return this.categoryService.create(categoryData);
   }
+
   @Get('/:id')
-  async fetchCatgory(@Param('id') id) {
-    return this.categoryService.findOne(id)
+  async fetchCategory(@Param('id') id) {
+    return this.categoryService.findOne(id);
   }
+
   @Put('/:id/update')
   async updateCategory(@Param('id') id, @Body() updatedCategoryData: UpdateCategoryDto) {
     const category = await this.categoryService.findOne(id);
@@ -27,9 +33,10 @@ export class CategoriesController {
     }
     return this.categoryService.update(id, updatedCategoryData);
   }
+
+
   @Delete('/:id/delete')
   async deleteCategory(@Param('id') id) {
-    return await this.categoryService.delete(id)
+    return await this.categoryService.delete(id);
   }
-
 }

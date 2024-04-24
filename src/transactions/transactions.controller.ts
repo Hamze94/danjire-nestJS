@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UsePipes, ValidationPipe } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 
@@ -8,6 +8,10 @@ export class TransactionsController {
   @Post('create')
   async createTransaction(@Body() transactionData: CreateTransactionDto) {
     return this.transactionsService.create(transactionData);
+  }
+  @Get('user/:userId')
+  async getUserTransactions(@Param('userId') userId: string) {
+    return await this.transactionsService.findUserTransactions(userId);
   }
   @Get()
   async getAllTransactios() {
@@ -21,5 +25,6 @@ export class TransactionsController {
   async getTotalCredits() {
     return this.transactionsService.getTotalCredits()
   }
+
 
 }

@@ -13,12 +13,43 @@ export class OrdersService {
 
   ) { }
   async create(orderData: CreateOrderDto): Promise<Order> {
-    return await this.orderModel.create(orderData);
+    try {
+      // Create the order
+      const order = await this.orderModel.create(orderData);
 
+      // Iterate over each product in the order
+      for (const productData of orderData.products) {
+        const productId = productData._id;
+        const quantity = productData.quantity;
+
+        // Find the product in the database
+        const product = await this.productModel.findById(productId);
+
+        if (product) {
+          // Subtract the quantity from the product
+          product.quantity -= quantity;
+          // Save the updated product
+          await product.save();
+        }
+      }
+
+      return order;
+    } catch (error) {
+      console.log(error);
+      throw new Error('Failed to create order');
+    }
   }
 
+
   async getOrdersByUserId(user: string): Promise<Order[]> {
-    return await this.orderModel.findOne({ user });
+    try {
+      const userOrders = await this.orderModel.find({ "user._id": user });
+      return userOrders;
+    } catch (error) {
+      console.log(error);
+      throw error; // Throw the error to handle it at the higher level if necessary
+    }
+
   }
   async getAllOrders() {
     return await this.orderModel.find({});
@@ -37,7 +68,6 @@ export class OrdersService {
 
     let totalRevenue = 0;
     for (const order of orders) {
-      console.log(order.products)
       for (const productId of order.products) {
         const product: Product = await this.productModel.findById(productId).exec(); // Fetch product details
         if (product) {

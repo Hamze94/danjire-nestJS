@@ -6,7 +6,7 @@ import { Order } from 'src/schemas/order.schema';
 export class CreateTransactionDto {
     @IsNotEmpty()
     @IsNumber()
-    amount: number;
+    amount: string;
 
     @IsNotEmpty()
     cardId: Card;

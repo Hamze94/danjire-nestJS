@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/schemas/user.schema';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { AuthGuard } from './guards/JwtAuthGuard ';
+import { CardsModule } from 'src/cards/cards.module';
 
 @Module({
     controllers: [AuthController],
@@ -19,8 +20,9 @@ import { AuthGuard } from './guards/JwtAuthGuard ';
         JwtModule.register({
             secret: 'your_secret_key', // Replace with a strong, unique secret key
         }),
+        CardsModule
+    ],
 
-        JwtModule],
     exports: [AuthGuard, JwtService]
 
 })
