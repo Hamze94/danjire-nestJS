@@ -7,8 +7,7 @@ import { Roles } from 'src/auth/decorators/user.decorator';
 @Controller('cards')
 export class CardsController {
     constructor(private cardService: CardsService) { }
-    @UseGuards(AuthGuard)
-    @Roles('ADMIN')
+
     @Post('/create')
     async createCard(@Body() cardData: CreateCardDto) {
         return this.cardService.create(cardData);
@@ -21,8 +20,6 @@ export class CardsController {
     async getUserCard(@Param('userId') userId: string) {
         return this.cardService.findCardByUser(userId);
     }
-    @UseGuards(AuthGuard)
-    @Roles('ADMIN')
     @Delete(':id/delete')
     async deletCard(@Param('id') id: string) {
         return this.cardService.delete(id);

@@ -67,7 +67,9 @@ export class ProductsService {
 
     async findAll() {
         try {
-            return await this.productModel.find().exec();
+            // Find products with quantity greater than 0 and sort them by quantity in ascending order
+            const products = await this.productModel.find({ quantity: { $gt: 0 } }).sort({ quantity: 1 }).exec();
+            return products;
         } catch (error) {
             throw error;
         }

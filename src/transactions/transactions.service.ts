@@ -20,30 +20,17 @@ export class TransactionsService {
     const card = await this.cardModel.findOne({ "_id": cardId });
     if (!card) {
       throw new BadRequestException('Card not found');
-    } else {
-      const user = await this.userModel.findOne({ "_id": card.userId });
-      if (user.role === 'CUSTOMER' || user.role === 'USER') {
-        if (type === 'CREDIT') {
-
-          card.balance -= parseInt(amount as string)
-            ;
-          await card.save();
-        }
-        if (type === 'DEPOSIT') {
-          card.balance += parseInt(amount as string)
-            ;
-          await card.save();
-        }
-        if (type === 'ORDER') {
-          card.balance -= parseInt(amount as string)
-            ;
-          await card.save();
-        }
-      }
-
     }
+
+    const user = await this.userModel.findOne({ "_id": card.userId });
+    if (!(user.role === 'CUSTOMER' || user.role === 'USER')) return;
+
+    card.balance += (type === 'DEPOSIT') ? parseInt(amount as string) : -parseInt(amount as string);
+    await card.save();
+
     return await this.transactionModel.create(transactionData);
   }
+
   async findAll() {
     return await this.transactionModel.find({});
   }
